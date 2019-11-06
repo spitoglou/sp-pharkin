@@ -3,27 +3,34 @@ ureg = UnitRegistry()
 Q_ = ureg.Quantity
 
 
+def generic_a_eq_b_x_c(a, b, c, names):
+    if a and c:
+        string = names[1]
+        quantity = a / c
+
+    if a and b:
+        string = names[2]
+        quantity = a / b
+
+    if b and c:
+        string = names[0]
+        quantity = b * c
+
+    return (string, quantity)
+
+
 def salt_factor(**kwargs):
     output_unit = kwargs.pop('output_unit', False)
     decimals = kwargs.pop('decimals', 2)
 
     kwargs = {k: Q_(v) for k, v in kwargs.items()}
 
-    delivered_drug = kwargs.get('delivered_drug', 0)
-    dose_of_salt = kwargs.get('dose_of_salt', 0)
-    salt_factor = kwargs.get('salt_factor', 0)
+    a = kwargs.get('delivered_drug', 0)
+    b = kwargs.get('dose_of_salt', 0)
+    c = kwargs.get('salt_factor', 0)
 
-    if delivered_drug and salt_factor:
-        string = 'Dose of Salt'
-        quantity = delivered_drug / salt_factor
-
-    if delivered_drug and dose_of_salt:
-        string = 'Salt Factor'
-        quantity = delivered_drug / dose_of_salt
-
-    if dose_of_salt and salt_factor:
-        string = 'Delivered Drug'
-        quantity = dose_of_salt * salt_factor
+    string, quantity = generic_a_eq_b_x_c(
+        a, b, c, ['Delivered Drug', 'Dose of Salt', 'Salt Factor'])
 
     if output_unit:
         quantity = round(quantity.to(ureg(output_unit)), decimals)
@@ -37,21 +44,12 @@ def bioavailability(**kwargs):
 
     kwargs = {k: Q_(v) for k, v in kwargs.items()}
 
-    delivered_drug = kwargs.get('delivered_drug', 0)
-    dose_administered = kwargs.get('dose_administered', 0)
-    bioavailability = kwargs.get('bioavailability', 0)
+    a = kwargs.get('delivered_drug', 0)
+    b = kwargs.get('dose_administered', 0)
+    c = kwargs.get('bioavailability', 0)
 
-    if delivered_drug and bioavailability:
-        string = 'Dose Administered'
-        quantity = delivered_drug / bioavailability
-
-    if delivered_drug and dose_administered:
-        string = 'Bioavailability'
-        quantity = delivered_drug / dose_administered
-
-    if dose_administered and bioavailability:
-        string = 'Delivered Drug'
-        quantity = dose_administered * bioavailability
+    string, quantity = generic_a_eq_b_x_c(
+        a, b, c, ['Delivered Drug', 'Dose Administered', 'Bioavailability'])
 
     if output_unit:
         quantity = round(quantity.to(ureg(output_unit)), decimals)
@@ -65,27 +63,43 @@ def volume_of_distribution_weight(**kwargs):
 
     kwargs = {k: Q_(v) for k, v in kwargs.items()}
 
-    volume_of_distribution = kwargs.get('volume_of_distribution', False)
-    mean_volume_of_distribution = kwargs.get(
+    a = kwargs.get('volume_of_distribution', False)
+    b = kwargs.get(
         'mean_volume_of_distribution', False)
-    weight = kwargs.get('weight', False)
+    c = kwargs.get('weight', False)
 
-    if volume_of_distribution and mean_volume_of_distribution:
-        string = 'Weight'
-        quantity = volume_of_distribution / mean_volume_of_distribution
-
-    if volume_of_distribution and weight:
-        string = 'Mean Volume of Distribution'
-        quantity = volume_of_distribution / weight
-
-    if mean_volume_of_distribution and weight:
-        string = 'Volume of Distribution'
-        quantity = mean_volume_of_distribution * weight
+    string, quantity = generic_a_eq_b_x_c(
+        a, b, c, ['Volume of Distribution', 'Mean Volume of Distribution', 'Weight'])
 
     if output_unit:
         quantity = round(quantity.to(ureg(output_unit)), decimals)
 
     return (string, quantity.magnitude, '{!s}'.format(quantity.units), '{!s}'.format(quantity), quantity)
+
+
+def dose_concentration_volume(**kwargs):
+    output_unit = kwargs.pop('output_unit', False)
+    decimals = kwargs.pop('decimals', 2)
+
+    kwargs = {k: Q_(v) for k, v in kwargs.items()}
+
+    a = kwargs.get('dose', False)
+    b = kwargs.get(
+        'concentration', False)
+    c = kwargs.get('volume', False)
+
+    string, quantity = generic_a_eq_b_x_c(
+        a, b, c, ['Dose', 'Concentration', 'Volume'])
+
+    if output_unit:
+        quantity = round(quantity.to(ureg(output_unit)), decimals)
+
+    return (string, quantity.magnitude, '{!s}'.format(quantity.units), '{!s}'.format(quantity), quantity)
+
+
+def target_concentration(min, max):
+    result = (Q_(min) + Q_(max)) / 2
+    return ('Target Concentration', result.magnitude, '{!s}'.format(result.units), '{!s}'.format(result), result)
 
 
 if __name__ == '__main__':
@@ -107,3 +121,79 @@ if __name__ == '__main__':
         weight='80 kilogram'
     )
     print(s)
+
+    print('3.1')
+    tar_con = target_concentration('150 ug/L', '250 ug/L')
+    c1 = tar_con[4]
+    v1 = volume_of_distribution_weight(
+        mean_volume_of_distribution='0.72 L/kilogram',
+        weight='65 kilogram'
+    )[4]
+    s = dose_concentration_volume(
+        concentration=c1,
+        volume=v1,
+        output_unit='mg',
+        decimals=1
+    )
+    print(s)
+
+    print('3.2')
+    v1 = volume_of_distribution_weight(
+        mean_volume_of_distribution='0.91 L/kilogram',
+        weight='80 kilogram'
+    )[4]
+    tar_con = target_concentration('20 ug/L', '40 ug/L')
+    c1 = tar_con[4]
+    c2 = dose_concentration_volume(
+        dose='5mg',
+        volume=v1,
+        output_unit='ug/L',
+        decimals=0
+    )[4]
+    print(c2, c1)
+
+    print('3.3')
+    v = dose_concentration_volume(
+        dose='200ug',
+        concentration='12.5ng/mL',
+        output_unit='L'
+    )
+    print(v)
+
+    print('3.4')
+    d = salt_factor(
+        dose_of_salt='5mg',
+        salt_factor=0.7
+    )[4]
+    c = dose_concentration_volume(
+        dose=d,
+        volume='70L',
+        output_unit='ng/mL'
+    )
+    print(c)
+
+    print('3.5')
+    v = dose_concentration_volume(
+        dose='0.5mg',
+        concentration='20ng/mL',
+        output_unit='L'
+    )
+    print(v)
+
+    print('3.6')
+    tar_con = target_concentration('400 ng/mL', '700 ng/mL')
+    c1 = tar_con[4]
+    v1 = volume_of_distribution_weight(
+        mean_volume_of_distribution='0.45 L/kilogram',
+        weight='70 kilogram'
+    )[4]
+    d1 = dose_concentration_volume(
+        volume=v1,
+        concentration=c1
+    )[4]
+    d2 = salt_factor(
+        delivered_drug=d1,
+        salt_factor=0.75,
+        output_unit='mg'
+    )
+    print(d2)
