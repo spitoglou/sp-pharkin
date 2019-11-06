@@ -3,6 +3,15 @@ ureg = UnitRegistry()
 Q_ = ureg.Quantity
 
 
+def format_output(quantity, string, output_unit, decimals):
+    if output_unit:
+        quantity = quantity.to(ureg(output_unit))
+
+    quantity = round(quantity, decimals)
+
+    return (string, quantity.magnitude, '{!s}'.format(quantity.units), '{!s}'.format(quantity), quantity)
+
+
 def generic_a_eq_b_x_c(a, b, c, names):
     if a and c:
         string = names[1]
@@ -32,10 +41,7 @@ def salt_factor(**kwargs):
     string, quantity = generic_a_eq_b_x_c(
         a, b, c, ['Delivered Drug', 'Dose of Salt', 'Salt Factor'])
 
-    if output_unit:
-        quantity = round(quantity.to(ureg(output_unit)), decimals)
-
-    return (string, quantity.magnitude, '{!s}'.format(quantity.units), '{!s}'.format(quantity), quantity)
+    return format_output(quantity, string, output_unit, decimals)
 
 
 def bioavailability(**kwargs):
@@ -51,10 +57,7 @@ def bioavailability(**kwargs):
     string, quantity = generic_a_eq_b_x_c(
         a, b, c, ['Delivered Drug', 'Dose Administered', 'Bioavailability'])
 
-    if output_unit:
-        quantity = round(quantity.to(ureg(output_unit)), decimals)
-
-    return (string, quantity.magnitude, '{!s}'.format(quantity.units), '{!s}'.format(quantity), quantity)
+    return format_output(quantity, string, output_unit, decimals)
 
 
 def volume_of_distribution_weight(**kwargs):
@@ -71,10 +74,7 @@ def volume_of_distribution_weight(**kwargs):
     string, quantity = generic_a_eq_b_x_c(
         a, b, c, ['Volume of Distribution', 'Mean Volume of Distribution', 'Weight'])
 
-    if output_unit:
-        quantity = round(quantity.to(ureg(output_unit)), decimals)
-
-    return (string, quantity.magnitude, '{!s}'.format(quantity.units), '{!s}'.format(quantity), quantity)
+    return format_output(quantity, string, output_unit, decimals)
 
 
 def dose_concentration_volume(**kwargs):
@@ -91,15 +91,95 @@ def dose_concentration_volume(**kwargs):
     string, quantity = generic_a_eq_b_x_c(
         a, b, c, ['Dose', 'Concentration', 'Volume'])
 
-    if output_unit:
-        quantity = round(quantity.to(ureg(output_unit)), decimals)
-
-    return (string, quantity.magnitude, '{!s}'.format(quantity.units), '{!s}'.format(quantity), quantity)
+    return format_output(quantity, string, output_unit, decimals)
 
 
 def target_concentration(min, max):
     result = (Q_(min) + Q_(max)) / 2
     return ('Target Concentration', result.magnitude, '{!s}'.format(result.units), '{!s}'.format(result), result)
+
+
+def rate_of_elimination_mass_k(**kwargs):
+    output_unit = kwargs.pop('output_unit', False)
+    decimals = kwargs.pop('decimals', 2)
+
+    kwargs = {k: Q_(v) for k, v in kwargs.items()}
+
+    a = kwargs.get('rate_of_elimination', False)
+    b = kwargs.get(
+        'mass', False)
+    c = kwargs.get('K', False)
+
+    string, quantity = generic_a_eq_b_x_c(
+        a, b, c, ['Rate of Elimination', 'Mass', 'Elimination Rate Constant(K)'])
+
+    return format_output(quantity, string, output_unit, decimals)
+
+
+def half_life_k(**kwargs):
+    import math
+    output_unit = kwargs.pop('output_unit', False)
+    decimals = kwargs.pop('decimals', 2)
+
+    kwargs = {k: Q_(v) for k, v in kwargs.items()}
+
+    a = math.log(2)
+    b = kwargs.get(
+        'K', False)
+    c = kwargs.get('half_life', False)
+
+    string, quantity = generic_a_eq_b_x_c(
+        a, b, c, ['Ln(2)', 'Elimination Rate Constant(K)', 'Half-Life'])
+
+    return format_output(quantity, string, output_unit, decimals)
+
+
+def extraction_rate(**kwargs):
+    output_unit = kwargs.pop('output_unit', False)
+    decimals = kwargs.pop('decimals', 2)
+
+    kwargs = {k: Q_(v) for k, v in kwargs.items()}
+
+    a = kwargs.get('c_diff', False)
+    b = kwargs.get('E', False)
+    c = kwargs.get('c_in', False)
+
+    string, quantity = generic_a_eq_b_x_c(
+        a, b, c, ['Concentration Difference(C_in - C_out)', 'Extraction Ratio(E)', 'Input Concentration(C_in)'])
+
+    return format_output(quantity, string, output_unit, decimals)
+
+
+def clearance_flow_extraction_rate(**kwargs):
+    output_unit = kwargs.pop('output_unit', False)
+    decimals = kwargs.pop('decimals', 2)
+
+    kwargs = {k: Q_(v) for k, v in kwargs.items()}
+
+    a = kwargs.get('clearance', False)
+    b = kwargs.get('Q', False)
+    c = kwargs.get('E', False)
+
+    string, quantity = generic_a_eq_b_x_c(
+        a, b, c, ['Clearance', 'Flow(Q)', 'Extraction Rate(E)'])
+
+    return format_output(quantity, string, output_unit, decimals)
+
+
+def clearance_elimination_rate_constant_volume(**kwargs):
+    output_unit = kwargs.pop('output_unit', False)
+    decimals = kwargs.pop('decimals', 2)
+
+    kwargs = {k: Q_(v) for k, v in kwargs.items()}
+
+    a = kwargs.get('clearance', False)
+    b = kwargs.get('K', False)
+    c = kwargs.get('volume', False)
+
+    string, quantity = generic_a_eq_b_x_c(
+        a, b, c, ['Clearance', 'Elimination Rate Constant(K)', 'Volume'])
+
+    return format_output(quantity, string, output_unit, decimals)
 
 
 if __name__ == '__main__':
@@ -197,3 +277,49 @@ if __name__ == '__main__':
         output_unit='mg'
     )
     print(d2)
+
+    r = rate_of_elimination_mass_k(
+        rate_of_elimination='1mg/hr',
+        mass='10mg'
+    )
+    print(r)
+    t = half_life_k(
+        K=r[4]
+    )
+    print(t)
+
+    e = extraction_rate(
+        c_in=10,
+        c_diff=6
+    )
+    print(e)
+
+    e = extraction_rate(
+        c_diff='6 mg/L',
+        E=0.6
+    )
+    print(e)
+
+    cl = clearance_flow_extraction_rate(
+        Q='2L/min',
+        E=0.5
+    )
+    print(cl)
+
+    Q = clearance_flow_extraction_rate(
+        clearance='1L/min',
+        E=0.5
+    )
+    print(Q)
+
+    cl = clearance_elimination_rate_constant_volume(
+        K='0.1/hour',
+        volume='50L'
+    )
+    print(cl)
+
+    v = clearance_elimination_rate_constant_volume(
+        K='0.1/hour',
+        clearance='5L/hour'
+    )
+    print(v)
