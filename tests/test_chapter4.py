@@ -46,7 +46,7 @@ def test_extraction_ratio():
 
 
 def test_clearance():
-    from sp_pharkin import clearance_flow_extraction_rate, clearance_elimination_rate_constant_volume
+    from sp_pharkin.clearance import clearance_flow_extraction_rate, clearance_elimination_rate_constant_volume
     result = clearance_flow_extraction_rate(
         Q='2L/min',
         E=0.5

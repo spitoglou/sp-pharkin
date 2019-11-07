@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="sp-pharkin",  # Replace with your own username
-    version="0.0.1",
+    version="0.0.2",
     author="Stavros Pitoglou",
     author_email="spitoglou@biomed.ntua.gr",
     description="Pharmacokinetics Helper Library",
@@ -13,6 +13,9 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/spitoglou/sp-pharkin",
     packages=setuptools.find_packages(),
+    install_requires=[
+        'pint',
+    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

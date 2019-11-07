@@ -333,3 +333,6 @@ ASALocalRun/
 .vscode/
 .pytest_cache/
 .cache/
+dist/
+build/
+sp_pharkin.egg-info/
