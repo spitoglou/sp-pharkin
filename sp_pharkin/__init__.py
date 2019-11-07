@@ -182,144 +182,93 @@ def clearance_elimination_rate_constant_volume(**kwargs):
     return format_output(quantity, string, output_unit, decimals)
 
 
+def average_clearance_weight(**kwargs):
+    output_unit = kwargs.pop('output_unit', False)
+    decimals = kwargs.pop('decimals', 2)
+
+    kwargs = {k: Q_(v) for k, v in kwargs.items()}
+
+    a = kwargs.get('clearance', False)
+    b = kwargs.get('average_clearance', False)
+    c = kwargs.get('weight', False)
+
+    string, quantity = generic_a_eq_b_x_c(
+        a, b, c, ['Clearance', 'Average Clearance', 'Weight'])
+
+    return format_output(quantity, string, output_unit, decimals)
+
+
 if __name__ == '__main__':
-    s = salt_factor(
-        output_unit='ug',
-        salt_factor=.8,
-        delivered_drug='400 mg'
-    )
-    print(s)
-    s = bioavailability(
-        output_unit='ng',
-        bioavailability=.8,
-        dose_administered='400 mg'
-    )
-    print(s)
-    s = volume_of_distribution_weight(
-        output_unit='L',
-        mean_volume_of_distribution='0.5 mL/kilogram',
-        weight='80 kilogram'
-    )
-    print(s)
 
-    print('3.1')
-    tar_con = target_concentration('150 ug/L', '250 ug/L')
-    c1 = tar_con[4]
-    v1 = volume_of_distribution_weight(
-        mean_volume_of_distribution='0.72 L/kilogram',
-        weight='65 kilogram'
-    )[4]
-    s = dose_concentration_volume(
-        concentration=c1,
-        volume=v1,
-        output_unit='mg',
-        decimals=1
-    )
-    print(s)
-
-    print('3.2')
-    v1 = volume_of_distribution_weight(
-        mean_volume_of_distribution='0.91 L/kilogram',
-        weight='80 kilogram'
-    )[4]
-    tar_con = target_concentration('20 ug/L', '40 ug/L')
-    c1 = tar_con[4]
-    c2 = dose_concentration_volume(
-        dose='5mg',
-        volume=v1,
-        output_unit='ug/L',
-        decimals=0
-    )[4]
-    print(c2, c1)
-
-    print('3.3')
-    v = dose_concentration_volume(
-        dose='200ug',
-        concentration='12.5ng/mL',
-        output_unit='L'
+    v = average_clearance_weight(
+        average_clearance='0.04L/(hour*kilogram)',
+        weight='75 kilogram'
     )
     print(v)
 
-    print('3.4')
-    d = salt_factor(
-        dose_of_salt='5mg',
-        salt_factor=0.7
-    )[4]
-    c = dose_concentration_volume(
-        dose=d,
-        volume='70L',
-        output_unit='ng/mL'
-    )
-    print(c)
-
-    print('3.5')
-    v = dose_concentration_volume(
-        dose='0.5mg',
-        concentration='20ng/mL',
-        output_unit='L'
+    v = average_clearance_weight(
+        clearance='3L/hour',
+        weight='75 kilogram'
     )
     print(v)
 
-    print('3.6')
-    tar_con = target_concentration('400 ng/mL', '700 ng/mL')
-    c1 = tar_con[4]
-    v1 = volume_of_distribution_weight(
-        mean_volume_of_distribution='0.45 L/kilogram',
-        weight='70 kilogram'
-    )[4]
-    d1 = dose_concentration_volume(
-        volume=v1,
-        concentration=c1
-    )[4]
-    d2 = salt_factor(
-        delivered_drug=d1,
-        salt_factor=0.75,
-        output_unit='mg'
+    print('4.1')
+    v = half_life_k(
+        K='0.0131 /hour',
     )
-    print(d2)
+    print(v)
 
-    r = rate_of_elimination_mass_k(
-        rate_of_elimination='1mg/hr',
-        mass='10mg'
+    print('4.2')
+    v = clearance_flow_extraction_rate(
+        Q='1.2L/min',
+        E=0.04,
+        output_unit='L/hour'
     )
-    print(r)
-    t = half_life_k(
-        K=r[4]
-    )
-    print(t)
+    print(v)
 
-    e = extraction_rate(
-        c_in=10,
-        c_diff=6
+    print('4.3')
+    v = half_life_k(
+        half_life='12hour',
+        decimals=3
     )
-    print(e)
+    print(v)
 
-    e = extraction_rate(
-        c_diff='6 mg/L',
-        E=0.6
-    )
-    print(e)
-
-    cl = clearance_flow_extraction_rate(
-        Q='2L/min',
-        E=0.5
-    )
-    print(cl)
-
-    Q = clearance_flow_extraction_rate(
-        clearance='1L/min',
-        E=0.5
-    )
-    print(Q)
-
-    cl = clearance_elimination_rate_constant_volume(
-        K='0.1/hour',
-        volume='50L'
-    )
-    print(cl)
-
+    print('4.4')
     v = clearance_elimination_rate_constant_volume(
-        K='0.1/hour',
-        clearance='5L/hour'
+        volume='25L',
+        K='0.03/hour',
+        output_unit='mL/hour'
     )
     print(v)
+
+    print('4.5')
+    k = clearance_elimination_rate_constant_volume(
+        volume='175L',
+        clearance='0.43L/min',
+        decimals=10,
+        output_unit='1/hour'
+    )
+    print(k)
+    v = half_life_k(
+        K=k[4],
+        decimals=10,
+        output_unit='hour'
+    )
+    print(v)
+
+    print('4.6')
+    k = clearance_elimination_rate_constant_volume(
+        volume='12L',
+        clearance='12.5mL/min',
+        decimals=4,
+        output_unit='1/hour'
+    )
+    print(k)
+
+    print('4.6')
+    k = average_clearance_weight(
+        average_clearance='1.5mL/min/kilogram',
+        weight='85kilogram',
+        output_unit='L/hour'
+    )
+    print(k)
