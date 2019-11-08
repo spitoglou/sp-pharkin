@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="sp-pharkin",  # Replace with your own username
-    version="0.0.2",
+    version="0.0.3",
     author="Stavros Pitoglou",
     author_email="spitoglou@biomed.ntua.gr",
     description="Pharmacokinetics Helper Library",
