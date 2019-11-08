@@ -8,7 +8,7 @@ I wrote this code while studying basic pharmacokinetiks theory from the book:
 Work in progress!!
 <!---
 - Simulation enviroment follows [OpenAI gym](https://github.com/openai/gym) and [rllab](https://github.com/rll/rllab) APIs. It returns observation, reward, done, info at each step, which means the simulator is "reinforcement-learning-ready".
->
+-->
 
 
 
