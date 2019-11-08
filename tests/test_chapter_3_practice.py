@@ -1,5 +1,6 @@
 def test_chapter_3():
-    from sp_pharkin import target_concentration, dose_concentration_volume, volume_of_distribution_weight, salt_factor
+    from sp_pharkin import target_concentration, dose_concentration_volume, volume_of_distribution_weight
+    from sp_pharkin.reduction_factors import salt_factor
     print('3.1')
     tar_con = target_concentration('150 ug/L', '250 ug/L')
     c1 = tar_con[4]
@@ -42,9 +43,10 @@ def test_chapter_3():
     d = salt_factor(
         dose_of_salt='5mg',
         salt_factor=0.7
-    )[4]
+    )
+    print(d)
     c = dose_concentration_volume(
-        dose=d,
+        dose=d[3],
         volume='70L',
         output_unit='ng/mL'
     )
@@ -60,15 +62,15 @@ def test_chapter_3():
 
     print('3.6')
     tar_con = target_concentration('400 ng/mL', '700 ng/mL')
-    c1 = tar_con[4]
+    c1 = tar_con[3]
     v1 = volume_of_distribution_weight(
         mean_volume_of_distribution='0.45 L/kilogram',
         weight='70 kilogram'
-    )[4]
+    )[3]
     d1 = dose_concentration_volume(
         volume=v1,
         concentration=c1
-    )[4]
+    )[3]
     d2 = salt_factor(
         delivered_drug=d1,
         salt_factor=0.75,
