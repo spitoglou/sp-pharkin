@@ -1,94 +1,169 @@
 # sp-pharkin
 
-Library that can be used for basic PharmacoKinetics calculations.
+A Python library for basic pharmacokinetics calculations with unit-aware arithmetic.
 
-I wrote this code while studying basic pharmacokinetiks theory from the book:
-"Pharmacokinetics" by Philip Rowe, and incoprorates formulas and practice questions in the form of tests.
-## Main Features
-Work in progress!!
-<!---
-- Simulation enviroment follows [OpenAI gym](https://github.com/openai/gym) and [rllab](https://github.com/rll/rllab) APIs. It returns observation, reward, done, info at each step, which means the simulator is "reinforcement-learning-ready".
--->
+Implements formulas from *"Pharmacokinetics"* by Philip Rowe, with practice questions from the book converted into tests.
 
+## Features
 
+- **Unit-aware calculations** using [Pint](https://pint.readthedocs.io/) - pass quantities as strings like `'10 mg/L'`
+- **Flexible equation solving** - given any two variables, compute the third
+- **Consistent output format** - all functions return a standardized 5-tuple
+- **Symbolic math support** - exponential decay solver using SymPy
 
 ## Installation
-<!---
-[comment]: It is highly recommended to use `pip` to install `simglucose`, follow this [link](https://pip.pypa.io/en/stable/installing/) to install pip.
 
-Auto installation:
 ```bash
-pip install simglucose
-```
--->
-
-
-Manual installation: 
-```bash
+# Clone the repository
 git clone https://github.com/spitoglou/sp-pharkin.git
 cd sp-pharkin
+
+# Install with uv
+uv sync
 ```
-If you have `pip` installed, then
+
+## Quick Start
+
+```python
+from sp_pharkin import half_life_k, dose_concentration_volume
+from sp_pharkin.clearance import clearance_flow_extraction_rate
+
+# Calculate half-life from elimination rate constant
+result = half_life_k(K='0.1/hour')
+print(result[3])  # '6.93 hour'
+
+# Calculate dose from concentration and volume
+result = dose_concentration_volume(
+    concentration='200 ug/L',
+    volume='50 L',
+    output_unit='mg'
+)
+print(result[3])  # '10.0 milligram'
+
+# Calculate clearance from flow and extraction rate
+result = clearance_flow_extraction_rate(
+    Q='1.2 L/min',
+    E=0.7,
+    output_unit='L/hour'
+)
+print(result[3])  # '50.4 liter / hour'
+```
+
+## Output Format
+
+All functions return a 5-tuple:
+
+```python
+(name, magnitude, unit_string, formatted_string, pint_quantity)
+```
+
+| Index | Name | Description |
+|-------|------|-------------|
+| 0 | `name` | Human-readable name of the result |
+| 1 | `magnitude` | Numeric value |
+| 2 | `unit_string` | Unit as a string |
+| 3 | `formatted_string` | Complete formatted result |
+| 4 | `pint_quantity` | Pint Quantity object for chaining calculations |
+
+## Available Functions
+
+### Core Functions (`sp_pharkin.functions`)
+
+| Function | Equation | Description |
+|----------|----------|-------------|
+| `volume_of_distribution_weight()` | VD = Mean_VD × Weight | Volume of distribution from mean values and body weight |
+| `dose_concentration_volume()` | Dose = C × V | Solve for dose, concentration, or volume |
+| `target_concentration()` | (Min + Max) / 2 | Therapeutic target as midpoint of range |
+| `rate_of_elimination_mass_k()` | Rate = Mass × K | Elimination rate calculations |
+| `half_life_k()` | t½ = ln(2) / K | Half-life and elimination constant |
+| `extraction_rate()` | ΔC = E × C_in | Extraction ratio calculations |
+
+### Clearance Functions (`sp_pharkin.clearance`)
+
+| Function | Equation | Description |
+|----------|----------|-------------|
+| `clearance_flow_extraction_rate()` | Cl = Q × E | Clearance from flow and extraction |
+| `clearance_elimination_rate_constant_volume()` | Cl = K × V | Clearance from K and volume |
+| `average_clearance_weight()` | Cl = Avg_Cl × Weight | Patient-specific clearance |
+
+### Reduction Factors (`sp_pharkin.reduction_factors`)
+
+| Function | Equation | Description |
+|----------|----------|-------------|
+| `salt_factor()` | Drug = Dose × SF | Adjust for salt formulations |
+| `bioavailability()` | Drug = Dose × F | Adjust for absorption efficiency |
+
+### Exponential Decay (`sp_pharkin.expo`)
+
+| Function | Equation | Description |
+|----------|----------|-------------|
+| `c_t()` | C(t) = C₀ × e^(-kt) | Symbolic solver for decay equations |
+
+## Optional Parameters
+
+All functions accept these optional keyword arguments:
+
+- `output_unit` - Convert result to specified unit (e.g., `'mg'`, `'L/hour'`)
+- `decimals` - Round result to N decimal places (default: 2)
+
+```python
+result = half_life_k(
+    K='0.1/hour',
+    output_unit='minute',
+    decimals=1
+)
+print(result[3])  # '415.9 minute'
+```
+
+## Chaining Calculations
+
+Use the Pint Quantity (index 4) to chain calculations:
+
+```python
+from sp_pharkin import volume_of_distribution_weight, dose_concentration_volume
+
+# Step 1: Calculate volume of distribution
+vd = volume_of_distribution_weight(
+    mean_volume_of_distribution='0.72 L/kg',
+    weight='65 kg'
+)[4]  # Extract pint_quantity
+
+# Step 2: Use it to calculate required dose
+dose = dose_concentration_volume(
+    concentration='200 ug/L',
+    volume=vd,
+    output_unit='mg'
+)
+print(dose[3])  # '9.36 milligram'
+```
+
+## Development
+
 ```bash
-pip install -e .
+# Install dependencies
+uv sync
+
+# Run all tests
+uv run pytest
+
+# Run specific test file
+uv run pytest tests/test_chapter4.py
+
+# Run specific test
+uv run pytest tests/test_chapter4.py::test_clearance
+
+# Lint code
+uv run ruff check .
+
+# Format code
+uv run ruff format .
 ```
-If you do not have `pip`, then
-```bash
-python setup.py install
-```
 
+## Dependencies
 
-## Reporting issues
-Report any bugs, enhancements or even discussion by [creating issues]https://github.com/spitoglou/sp-pharkin/issues/new).
-
-## How to contribute
-The following instruction is originally from the [contribution instructions of sklearn](https://github.com/scikit-learn/scikit-learn/blob/master/CONTRIBUTING.md).
-
-The preferred workflow for contributing to simglucose is to fork the
-[main repository](https://github.com/spitoglou/sp-pharkin) on
-GitHub, clone, and develop on a branch. Steps:
-
-1. Fork the [project repository](https://github.com/spitoglou/sp-pharkin)
-   by clicking on the 'Fork' button near the top right of the page. This creates
-   a copy of the code under your GitHub user account. For more details on
-   how to fork a repository see [this guide](https://help.github.com/articles/fork-a-repo/).
-
-2. Clone your fork of the simglucose repo from your GitHub account to your local disk:
-
-   ```bash
-   $ git clone git@github.com:YourLogin/sp-pharkin.git
-   $ cd sp-pharkin
-   ```
-
-3. Create a ``feature`` branch to hold your development changes:
-
-   ```bash
-   $ git checkout -b my-feature
-   ```
-
-   Always use a ``feature`` branch. It's good practice to **never work on the ``master`` branch**!
-
-4. Develop the feature on your feature branch. Add changed files using ``git add`` and then ``git commit`` files:
-
-   ```bash
-   $ git add modified_files
-   $ git commit
-   ```
-
-   to record your changes in Git, then push the changes to your GitHub account with:
-
-   ```bash
-   $ git push -u origin my-feature
-   ```
-
-5. Follow [these instructions](https://help.github.com/articles/creating-a-pull-request-from-a-fork)
-to create a pull request from your fork. This will send an email to the committers.
-
-(If any of the above seems like magic to you, please look up the
-[Git documentation](https://git-scm.com/documentation) on the web, or ask a friend or another contributor for help.)
+- **pint** - Unit handling and dimensional analysis
+- **sympy** - Symbolic mathematics for exponential equations
 
 ## License
 
-sp-pharkin is licensed under the [MIT License](http://opensource.org/licenses/MIT).
-
-Copyright 2015 **Stavros Pitoglou**
+MIT
