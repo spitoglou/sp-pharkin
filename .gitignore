@@ -336,3 +336,24 @@ ASALocalRun/
 dist/
 build/
 sp_pharkin.egg-info/
+
+# UV and Python
+.venv/
+venv/
+.uv/
+*.egg-info/
+*.egg
+.eggs/
+*.whl
+
+# Ruff
+.ruff_cache/
+
+# Type checking
+.mypy_cache/
+.pytype/
+
+# Coverage
+.coverage
+htmlcov/
+coverage.xml

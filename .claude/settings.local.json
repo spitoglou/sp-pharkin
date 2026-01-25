@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(del \"D:\\\\code\\\\python\\\\sp-pharkin\\\\setup.py\")",
+      "mcp__acp__Bash"
+    ]
+  }
+}

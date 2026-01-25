@@ -1,0 +1,73 @@
+[project]
+name = "sp-pharkin"
+version = "0.0.4"
+description = "Pharmacokinetics Helper Library"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Stavros Pitoglou", email = "spitoglou@biomed.ntua.gr" }
+]
+requires-python = ">=3.13"
+keywords = ["pharmacokinetics", "pharmaceutical", "drug", "calculations", "units"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+dependencies = [
+    "pint>=0.24",
+    "sympy>=1.13",
+]
+
+[project.urls]
+Homepage = "https://github.com/spitoglou/sp-pharkin"
+Repository = "https://github.com/spitoglou/sp-pharkin"
+Issues = "https://github.com/spitoglou/sp-pharkin/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0",
+    "ruff>=0.9",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
