@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(del \"D:\\\\code\\\\python\\\\sp-pharkin\\\\setup.py\")",
-      "mcp__acp__Bash"
+      "mcp__acp__Bash",
+      "Bash(grep:*)",
+      "Bash(uv run:*)"
     ]
   }
 }
