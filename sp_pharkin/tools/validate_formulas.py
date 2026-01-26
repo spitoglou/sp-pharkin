@@ -4,6 +4,9 @@ Validate that sp-pharkin implementations match book formulas.
 
 This script checks that each function implements the correct formula from
 "Pharmacokinetics" by Philip Rowe.
+
+Usage:
+    uv run -m sp_pharkin.tools.validate_formulas
 """
 
 import sys
@@ -129,6 +132,10 @@ def validate_formulas():
     print()
 
     return validated_count, needs_verification
+
+
+def main() -> None:
+    validate_formulas()
 
 
 if __name__ == "__main__":

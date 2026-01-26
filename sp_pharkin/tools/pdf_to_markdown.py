@@ -6,10 +6,10 @@ This script extracts text from a PDF file and converts it to Markdown,
 preserving structure like headings, lists, and tables where possible.
 
 Usage:
-    uv run pdf_to_markdown.py <pdf_path> [--output <md_path>]
+    uv run -m sp_pharkin.tools.pdf_to_markdown <pdf_path> [--output <md_path>]
 
 Example:
-    uv run pdf_to_markdown.py "book/Rowe P. - Pharmacokinetics - libgen.li.pdf" --output book.md
+    uv run -m sp_pharkin.tools.pdf_to_markdown "book/Rowe P. - Pharmacokinetics - libgen.li.pdf" --output book.md
 """
 
 import argparse
@@ -134,15 +134,15 @@ def simple_markdown_conversion(text: str) -> str:
     return "\n".join(markdown_lines)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Convert PDF book to Markdown format",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  uv run pdf_to_markdown.py book.pdf
-  uv run pdf_to_markdown.py book.pdf --output output.md
-  uv run pdf_to_markdown.py "book/Rowe P. - Pharmacokinetics - libgen.li.pdf"
+  uv run -m sp_pharkin.tools.pdf_to_markdown book.pdf
+  uv run -m sp_pharkin.tools.pdf_to_markdown book.pdf --output output.md
+  uv run -m sp_pharkin.tools.pdf_to_markdown "book/Rowe P. - Pharmacokinetics - libgen.li.pdf"
         """,
     )
 
