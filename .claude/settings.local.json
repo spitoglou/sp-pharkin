@@ -4,7 +4,10 @@
       "Bash(del \"D:\\\\code\\\\python\\\\sp-pharkin\\\\setup.py\")",
       "mcp__acp__Bash",
       "Bash(grep:*)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "Bash(for f in sp_pharkin/auc.py sp_pharkin/multiple_dosing.py sp_pharkin/renal.py sp_pharkin/oral.py sp_pharkin/two_compartment.py sp_pharkin/nonlinear.py)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
